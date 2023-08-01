@@ -1,0 +1,39 @@
+#!/usr/sbin/nft -f
+
+table inet internal-zone {
+	chain input {
+		type filter hook input priority filter; policy accept;
+		icmp type echo-request drop
+	}
+	chain forward {
+		type filter hook forward priority 0;
+	}
+	chain output {
+		type filter hook output priority 0; policy accept;
+		ip daddr 169.148.148.138 reject;
+	}
+}
+table inet public-zone {
+	chain input {
+		type filter hook input priority filter; policy accept;
+		icmp type echo-request drop
+	}
+	chain forward {
+		type filter hook forward priority 0;
+	}
+	chain output {
+		type filter hook output priority 0; 
+	}
+}
+table inet trusted-zone{
+	chain input {
+		type filter hook input priority filter; policy accept;
+		icmp type echo-request drop
+	}
+	chain forward {
+		type filter hook forward priority 0;
+	}
+	chain output {
+		type filter hook output priority filter; 
+	}
+}
