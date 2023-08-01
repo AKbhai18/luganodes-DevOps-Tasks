@@ -1,0 +1,53 @@
+sudo apt update 
+sudo apt install firewalld
+sudo systemctl start firewalld
+sudo systemctl status firewalld
+sudo firewall-cmd --set-default-zone=trusted
+sudo firewall-cmd --permanent --new-zone=trusted-zone
+sudo firewall-cmd --permanent --new-zone=internal-zone
+sudo firewall-cmd --permanent --new-zone=public-zone
+sudo firewall-cmd --permanent --zone=trusted --change-interface=eth0
+sudo firewall-cmd --permanent --zone=trusted --change-interface=eth1
+sudo firewall-cmd --permanent --zone=trusted --change-interface=eth2
+sudo firewall-cmd --permanent --zone=internal --set-target=default
+sudo firewall-cmd --permanent --zone=internal --set-masquerade
+sudo firewall-cmd --reload
+
+
+TABLE
+nft add table inet Block_pkts
+CHAIN
+nft add chain inet Block_pkts XYZ
+{
+	type filter hook input priority 0;policy accept;
+}
+RULE
+nft add rule Block_pkts XYZ ip daddr 8.8.8.8 counter
+
+
+sudo nft list tables
+sudo nft list ruleset
+nft add table inet internal-zone
+nft add chain inet internal-zone INPUT
+{
+	type filter hook input priority 0;policy accept;
+}
+sudo nft add rule inet internal-zone INPUT icmp type echo-request reject
+sudo nft table inet internal-zone -a
+sudo nft delete rule inet intrnal-zone INPUT handle 3
+sudo nft list ruleset
+sudo nft add rule inet internal-zone INPUT icmp type echo-request drop
+
+ping www.jfa.in
+169.148.148.139
+
+sudo vi /etc/nftables.conf
+#!/usr/sbin/nft -f
+
+table inet filter {
+	chain output {
+		type filter hook output priority 0; policy accept;
+		ip daddr 169.148.148.139 reject;
+	}
+}
+systemctl enable nftables
